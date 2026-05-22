@@ -88,8 +88,8 @@ class TestCreateOrderEndpoint:
         assert response.status_code in [200, 422]
 
     def test_create_order_missing_body(self, client):
-        response = client.post("/orders", json={})
-        assert response.status_code in [400, 422, 500]
+        response = client.post("/orders", json={"quantity": 1})
+        assert response.status_code == 422
 
 
 class TestCORSHeaders:
