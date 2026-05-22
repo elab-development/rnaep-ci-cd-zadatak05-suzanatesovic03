@@ -1,0 +1,51 @@
+name: CI — Payment Service Tests
+
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        working-directory: payment
+        run: pip install -r requirements.txt
+
+      - name: Run unit tests
+        working-directory: payment
+        run: pytest tests/test_unit.py -v
+
+      - name: Run integration tests
+        working-directory: payment
+        run: pytest tests/test_integration.py -v
+
+      - name: Run functional tests
+        working-directory: payment
+        run: pytest tests/test_functional.py -v
